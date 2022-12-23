@@ -10,4 +10,4 @@ RUN python -V \
 && python -m django --version \
 && python -m markdown --version
 
-ENTRYPOINT ["python", "manage.py", "runserver"]
+ENTRYPOINT ["python", "manage.py", "runserver", "0.0.0.0:8000"]

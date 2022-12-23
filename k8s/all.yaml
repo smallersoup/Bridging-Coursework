@@ -44,7 +44,11 @@ spec:
           type: ""
         name: data
       containers:
-      - volumeMounts:
+      - command:
+        - /bin/sh
+        - -c
+        - python manage.py runserver 0.0.0.0:8000
+        volumeMounts:
         - mountPath: /app/data/
           name: data
         env:
