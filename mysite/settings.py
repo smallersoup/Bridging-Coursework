@@ -25,7 +25,7 @@ SECRET_KEY = '#70e6vl=nm)(1ze^4m$6@ijd(%qa644=#6%u-jx8=01joov3n^'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', '.pythonanywhere.com']
+ALLOWED_HOSTS = ['0.0.0.0', '.kubeinfo.cn']
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 

@@ -7,9 +7,9 @@ metadata:
 spec:
   ports:
   - name: http
-    port: 8080
+    port: 8000
     protocol: TCP
-    targetPort: 8080
+    targetPort: 8000
   selector:
     name: django
   sessionAffinity: None
@@ -54,7 +54,7 @@ spec:
         imagePullPolicy: IfNotPresent
         name: django
         ports:
-        - containerPort: 8080
+        - containerPort: 8000
           protocol: TCP
         resources: {}
 
@@ -85,7 +85,7 @@ spec:
     priority: 10
     services:
     - name: django
-      port: 8080
+      port: 8000
   tls:
     secretName: my-django-domain-tls
 
@@ -105,7 +105,7 @@ spec:
     # in this IngressRoute the service will be never called
     # because of the redirect middleware.
     - name: django
-      port: 8080
+      port: 8000
     middlewares:
     - name: https-redirect
 
