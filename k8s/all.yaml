@@ -1,0 +1,120 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: django
+  name: django
+spec:
+  ports:
+  - name: http
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    name: django
+  sessionAffinity: None
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    name: django
+  name: django
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: django
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        name: django
+    spec:
+      volumes:
+      - hostPath:
+          path: /data/blog-py/data/
+          type: ""
+        name: data
+      containers:
+      - volumeMounts:
+        - mountPath: /app/data/
+          name: data
+        env:
+        - name: TZ
+          value: Asia/Shanghai
+        image: smallsoup/django-blog:v1.0.1
+        imagePullPolicy: IfNotPresent
+        name: django
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        resources: {}
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: mydomain-django
+spec:
+  commonName: py.test.cn
+  dnsNames:
+  - py.test.cn
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt-prod
+  secretName: my-django-domain-tls
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: django-ingressroute
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - match: Host(`py.test.cn`)
+    kind: Rule
+    priority: 10
+    services:
+    - name: django
+      port: 8080
+  tls:
+    secretName: my-django-domain-tls
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: django-ingressroute-redirect
+spec:
+  entryPoints:
+    - web
+  routes:
+  - match: Host(`py.test.cn`)
+    kind: Rule
+    priority: 10
+    services:
+    # in this IngressRoute the service will be never called
+    # because of the redirect middleware.
+    - name: django
+      port: 8080
+    middlewares:
+    - name: https-redirect
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: https-redirect
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true
